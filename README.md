@@ -26,9 +26,13 @@ no framework lock-in.
 
 ## Requirements
 
-- Node.js 18+ (tested on Node 22)
-- No external database — uses SQLite via `better-sqlite3`, stored as a file
-  in `data/app.db`.
+- Node.js 22.5+ (tested on Node 22 and 24) — required for the built-in
+  `node:sqlite` module
+- No external database — uses Node's built-in `node:sqlite` module (no
+  native compilation, no separate DB server), storing everything as a file
+  in `data/app.db`. This needs Node 22.5+; the app also runs fine on
+  restrictive shared hosting that blocks compiling native addons, since
+  there's nothing to compile.
 
 ## Local setup
 
