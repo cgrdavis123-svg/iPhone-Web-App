@@ -1,0 +1,73 @@
+<div class="page-header">
+  <h1>Hey there 👋</h1>
+</div>
+
+<div class="stat-grid">
+  <a href="/clients?status=active" class="stat-card card-link">
+    <div class="stat-card__value"><%= counts.active || 0 %></div>
+    <div class="stat-card__label">Active Clients</div>
+  </a>
+  <a href="/clients?status=lead" class="stat-card card-link">
+    <div class="stat-card__value"><%= counts.lead || 0 %></div>
+    <div class="stat-card__label">Leads</div>
+  </a>
+  <a href="/tasks?filter=open" class="stat-card card-link">
+    <div class="stat-card__value"><%= openTaskCount %></div>
+    <div class="stat-card__label">Open Tasks</div>
+  </a>
+  <a href="/invoices?status=sent" class="stat-card card-link">
+    <div class="stat-card__value"><%= money(unpaidTotal) %></div>
+    <div class="stat-card__label">Unpaid Invoices</div>
+  </a>
+</div>
+
+<div class="card">
+  <div class="list-row">
+    <div class="list-row__meta">Monthly Recurring Revenue</div>
+    <div class="list-row__title"><%= money(monthlyRecurring) %></div>
+  </div>
+</div>
+
+<div class="section-title">
+  <h2>Up Next</h2>
+  <a href="/tasks" class="link-btn" style="color:var(--accent);">See all</a>
+</div>
+<% if (!openTasks.length) { %>
+  <p style="font-size:13px;">Nothing on your plate. 🎉</p>
+<% } %>
+<% openTasks.forEach(function(t) { %>
+  <div class="card task-row">
+    <form method="POST" action="/tasks/<%= t.id %>/toggle">
+      <button type="submit" class="task-row__check"></button>
+    </form>
+    <div class="task-row__body">
+      <div class="task-row__title"><%= t.title %></div>
+      <div class="task-row__meta <%= isOverdue(t.due_date, t.completed) ? 'is-overdue' : '' %>">
+        <% if (t.client_name) { %><a href="/clients/<%= t.client_id %>" style="color:var(--accent);"><%= t.client_name %></a><% } %>
+        <% if (t.client_name && t.due_date) { %> · <% } %>
+        <% if (t.due_date) { %>Due <%= shortDate(t.due_date) %><% } %>
+      </div>
+    </div>
+  </div>
+<% }) %>
+
+<div class="section-title"><h2>Recent Activity</h2></div>
+<% if (!recentNotes.length) { %>
+  <p style="font-size:13px;">No activity logged yet.</p>
+<% } %>
+<% recentNotes.forEach(function(n) { %>
+  <div class="note">
+    <div class="note__meta">
+      <a href="/clients/<%= n.client_id %>" style="color:var(--accent);"><%= n.client_name %></a> · <%= relativeTime(n.created_at) %>
+    </div>
+    <div class="note__body"><%= n.body %></div>
+  </div>
+<% }) %>
+
+<% if (totalClients === 0) { %>
+  <div class="empty-state">
+    <h1>Welcome to <%= appName %></h1>
+    <p>Add your first client to start tracking projects, tasks, notes, and invoices.</p>
+    <a href="/clients/new" class="btn btn--primary">+ New Client</a>
+  </div>
+<% } %>

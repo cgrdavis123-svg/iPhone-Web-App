@@ -1,0 +1,187 @@
+<a href="/clients" class="back-link">‹ All Clients</a>
+
+<div class="page-header">
+  <div>
+    <h1><%= clientRecord.business_name %></h1>
+    <div class="list-row__meta"><%= clientRecord.contact_name || '' %></div>
+  </div>
+  <span class="badge badge--<%= clientRecord.status %>"><%= statusLabel(clientRecord.status) %></span>
+</div>
+
+<div class="card">
+  <div class="row row--wrap" style="gap:8px;">
+    <% if (clientRecord.phone) { %><a href="tel:<%= clientRecord.phone.replace(/[^0-9+]/g, '') %>" class="btn btn--sm">📞 Call</a><% } %>
+    <% if (clientRecord.email) { %><a href="mailto:<%= clientRecord.email %>" class="btn btn--sm">✉️ Email</a><% } %>
+    <% if (clientRecord.website) { %><a href="<%= clientRecord.website %>" target="_blank" rel="noopener" class="btn btn--sm">🌐 Site</a><% } %>
+    <a href="/clients/<%= clientRecord.id %>/edit" class="btn btn--sm">✏️ Edit</a>
+  </div>
+  <hr class="divider">
+  <div class="stack" style="gap:4px; font-size:14px;">
+    <% if (clientRecord.phone) { %><div><%= clientRecord.phone %></div><% } %>
+    <% if (clientRecord.email) { %><div><%= clientRecord.email %></div><% } %>
+    <% if (clientRecord.address) { %><div><%= clientRecord.address %></div><% } %>
+    <% if (clientRecord.industry) { %><div class="list-row__meta"><%= clientRecord.industry %><%= clientRecord.source ? ' · via ' + clientRecord.source : '' %></div><% } %>
+    <% if (clientRecord.monthly_value) { %><div class="list-row__meta">Monthly value: <%= money(clientRecord.monthly_value) %></div><% } %>
+  </div>
+  <% if (clientRecord.notes) { %>
+    <hr class="divider">
+    <div style="font-size:14px; white-space:pre-wrap; color:var(--text-dim);"><%= clientRecord.notes %></div>
+  <% } %>
+</div>
+
+<!-- Projects -->
+<div class="section-title"><h2>Projects &amp; Services</h2></div>
+<% projects.forEach(function(p) { %>
+  <div class="card">
+    <div class="row">
+      <div>
+        <div class="list-row__title"><%= p.title || p.type %></div>
+        <div class="list-row__meta"><%= p.type %><%= p.price ? ' · ' + money(p.price) + (p.billing_type === 'monthly' ? '/mo' : '') : '' %></div>
+      </div>
+      <span class="badge badge--<%= p.status %>"><%= statusLabel(p.status) %></span>
+    </div>
+    <% if (p.due_date) { %><div class="list-row__meta" style="margin-top:6px;">Due <%= shortDate(p.due_date) %></div><% } %>
+    <div class="row" style="margin-top:10px; gap:8px;">
+      <form method="POST" action="/projects/<%= p.id %>/status" class="inline-form" style="flex:1;">
+        <select name="status" onchange="this.form.submit()">
+          <% ['planning','in_progress','review','complete','on_hold'].forEach(function(s){ %>
+            <option value="<%= s %>" <%= p.status === s ? 'selected' : '' %>><%= statusLabel(s) %></option>
+          <% }) %>
+        </select>
+      </form>
+      <form method="POST" action="/projects/<%= p.id %>/delete" data-confirm="Delete this project?">
+        <button type="submit" class="btn btn--sm btn--danger">Delete</button>
+      </form>
+    </div>
+  </div>
+<% }) %>
+<details class="card">
+  <summary style="cursor:pointer; font-weight:600;">+ Add project / service</summary>
+  <form method="POST" action="/clients/<%= clientRecord.id %>/projects" class="form" style="margin-top:12px;">
+    <label class="field">
+      <span>Type</span>
+      <select name="type">
+        <% ['Website Design','SEO','Social Media','Paid Ads','Branding','Email Marketing','Other'].forEach(function(t){ %>
+          <option value="<%= t %>"><%= t %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label class="field">
+      <span>Title (optional)</span>
+      <input type="text" name="title" placeholder="e.g. Full site redesign">
+    </label>
+    <div class="field-row">
+      <label class="field">
+        <span>Price ($)</span>
+        <input type="number" step="0.01" min="0" name="price">
+      </label>
+      <label class="field">
+        <span>Billing</span>
+        <select name="billing_type">
+          <option value="one_time">One-time</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </label>
+    </div>
+    <label class="field">
+      <span>Due Date</span>
+      <input type="date" name="due_date">
+    </label>
+    <button type="submit" class="btn btn--primary">Add Project</button>
+  </form>
+</details>
+
+<!-- Tasks -->
+<div class="section-title"><h2>Tasks</h2></div>
+<% if (!tasks.length) { %>
+  <p style="font-size:13px;">No tasks yet.</p>
+<% } %>
+<% tasks.forEach(function(t) { %>
+  <div class="card task-row">
+    <form method="POST" action="/tasks/<%= t.id %>/toggle">
+      <button type="submit" class="task-row__check <%= t.completed ? 'is-done' : '' %>"><%= t.completed ? '✓' : '' %></button>
+    </form>
+    <div class="task-row__body">
+      <div class="task-row__title <%= t.completed ? 'is-done' : '' %>"><%= t.title %></div>
+      <% if (t.due_date) { %>
+        <div class="task-row__meta <%= isOverdue(t.due_date, t.completed) ? 'is-overdue' : '' %>">Due <%= shortDate(t.due_date) %></div>
+      <% } %>
+    </div>
+    <form method="POST" action="/tasks/<%= t.id %>/delete" data-confirm="Delete this task?">
+      <button type="submit" class="btn btn--sm btn--ghost">✕</button>
+    </form>
+  </div>
+<% }) %>
+<form method="POST" action="/clients/<%= clientRecord.id %>/tasks" class="card">
+  <div class="inline-form">
+    <input type="text" name="title" placeholder="Quick add a task…" required>
+    <input type="date" name="due_date" style="max-width:140px;">
+  </div>
+  <button type="submit" class="btn btn--primary btn--block" style="margin-top:10px;">Add Task</button>
+</form>
+
+<!-- Notes -->
+<div class="section-title"><h2>Notes</h2></div>
+<form method="POST" action="/clients/<%= clientRecord.id %>/notes" class="card">
+  <textarea name="body" placeholder="Log a call, meeting, or quick note…" required></textarea>
+  <button type="submit" class="btn btn--primary btn--block" style="margin-top:10px;">Add Note</button>
+</form>
+<% notes.forEach(function(n) { %>
+  <div class="note">
+    <div class="note__meta"><%= relativeTime(n.created_at) %>
+      <form method="POST" action="/notes/<%= n.id %>/delete" data-confirm="Delete this note?" style="display:inline;">
+        <button type="submit" class="link-btn" style="padding:0; margin-left:8px;">delete</button>
+      </form>
+    </div>
+    <div class="note__body"><%= n.body %></div>
+  </div>
+<% }) %>
+
+<!-- Invoices -->
+<div class="section-title">
+  <h2>Invoices</h2>
+  <a href="/clients/<%= clientRecord.id %>/invoices/new" class="link-btn" style="color:var(--accent);">+ New</a>
+</div>
+<% if (!invoices.length) { %>
+  <p style="font-size:13px;">No invoices yet.</p>
+<% } %>
+<% invoices.forEach(function(inv) { %>
+  <a href="/invoices/<%= inv.id %>" class="card-link">
+    <div class="list-row">
+      <div>
+        <div class="list-row__title">#<%= inv.invoice_number %></div>
+        <div class="list-row__meta">Issued <%= shortDate(inv.issue_date) %></div>
+      </div>
+      <div style="text-align:right;">
+        <div class="list-row__title"><%= money(totalsById[inv.id] || 0) %></div>
+        <span class="badge badge--<%= inv.status %>"><%= statusLabel(inv.status) %></span>
+      </div>
+    </div>
+  </a>
+<% }) %>
+
+<!-- Files -->
+<div class="section-title"><h2>Files</h2></div>
+<form method="POST" action="/clients/<%= clientRecord.id %>/files" enctype="multipart/form-data" class="card">
+  <input type="file" name="file" required>
+  <button type="submit" class="btn btn--primary btn--block" style="margin-top:10px;">Upload File</button>
+</form>
+<% files.forEach(function(f) { %>
+  <div class="card file-row">
+    <div>
+      <div class="file-row__name"><%= f.original_name %></div>
+      <div class="file-row__meta"><%= shortDate(f.created_at) %><%= f.size ? ' · ' + Math.round(f.size/1024) + ' KB' : '' %></div>
+    </div>
+    <div class="row" style="gap:6px;">
+      <a href="/files/<%= f.id %>/download" class="btn btn--sm">Download</a>
+      <form method="POST" action="/files/<%= f.id %>/delete" data-confirm="Delete this file?">
+        <button type="submit" class="btn btn--sm btn--ghost">✕</button>
+      </form>
+    </div>
+  </div>
+<% }) %>
+
+<div class="section-title"><h2>Danger Zone</h2></div>
+<form method="POST" action="/clients/<%= clientRecord.id %>/delete" data-confirm="Delete <%= clientRecord.business_name %> and everything attached to it? This cannot be undone.">
+  <button type="submit" class="btn btn--danger btn--block">Delete Client</button>
+</form>

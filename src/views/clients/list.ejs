@@ -1,0 +1,38 @@
+<div class="page-header">
+  <h1>Clients</h1>
+  <a href="/clients/new" class="btn btn--primary btn--sm">+ New</a>
+</div>
+
+<form class="search-bar" method="GET" action="/clients">
+  <input type="search" name="q" placeholder="Search clients…" value="<%= q %>" <% if (status) { %>data-status="<%= status %>"<% } %>>
+  <% if (status) { %><input type="hidden" name="status" value="<%= status %>"><% } %>
+</form>
+
+<div class="chip-row">
+  <a href="/clients<%= q ? '?q=' + encodeURIComponent(q) : '' %>" class="chip <%= !status ? 'is-active' : '' %>">All</a>
+  <% STATUSES.forEach(function(s) { %>
+    <a href="/clients?status=<%= s %><%= q ? '&q=' + encodeURIComponent(q) : '' %>" class="chip <%= status === s ? 'is-active' : '' %>"><%= statusLabel(s) %></a>
+  <% }) %>
+</div>
+
+<% if (!clients.length) { %>
+  <div class="empty-state">
+    <h1>No clients yet</h1>
+    <p><%= q || status ? 'Nothing matches your filters.' : 'Add your first client to get started.' %></p>
+    <a href="/clients/new" class="btn btn--primary">+ New Client</a>
+  </div>
+<% } else { %>
+  <div class="stack">
+    <% clients.forEach(function(c) { %>
+      <a href="/clients/<%= c.id %>" class="card-link">
+        <div class="list-row">
+          <div>
+            <div class="list-row__title"><%= c.business_name %></div>
+            <div class="list-row__meta"><%= c.contact_name || c.industry || 'No contact set' %></div>
+          </div>
+          <span class="badge badge--<%= c.status %>"><%= statusLabel(c.status) %></span>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+<% } %>

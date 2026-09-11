@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <title>Log in · <%= appName %></title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0b0f1a">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="login-screen">
+    <div class="login-card">
+      <h1 class="login-card__title"><%= appName %></h1>
+      <p class="login-card__subtitle">Client management, on the go.</p>
+
+      <% if (error) { %>
+        <div class="flash flash--err"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/login" class="form">
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="username" inputmode="email" required autofocus>
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="btn btn--primary btn--block">Log in</button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

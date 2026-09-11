@@ -1,0 +1,24 @@
+<header class="topbar">
+  <a href="/" class="topbar__brand"><%= appName %></a>
+  <form action="/logout" method="POST" class="topbar__logout">
+    <button type="submit" class="link-btn">Log out</button>
+  </form>
+</header>
+
+<nav class="tabbar" aria-label="Primary">
+  <a href="/" class="tabbar__item <%= currentPath === '/' ? 'is-active' : '' %>">
+    <span class="tabbar__icon">🏠</span><span>Home</span>
+  </a>
+  <a href="/clients" class="tabbar__item <%= currentPath.startsWith('/clients') ? 'is-active' : '' %>">
+    <span class="tabbar__icon">👥</span><span>Clients</span>
+  </a>
+  <a href="/clients/new" class="tabbar__item tabbar__item--add">
+    <span class="tabbar__icon tabbar__icon--add">+</span><span>New</span>
+  </a>
+  <a href="/tasks" class="tabbar__item <%= currentPath.startsWith('/tasks') ? 'is-active' : '' %>">
+    <span class="tabbar__icon">✅</span><span>Tasks</span>
+  </a>
+  <a href="/invoices" class="tabbar__item <%= currentPath.startsWith('/invoices') ? 'is-active' : '' %>">
+    <span class="tabbar__icon">🧾</span><span>Invoices</span>
+  </a>
+</nav>
