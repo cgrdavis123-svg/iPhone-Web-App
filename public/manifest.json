@@ -1,0 +1,15 @@
+{
+  "name": "Syndicate Client Hub",
+  "short_name": "Client Hub",
+  "description": "Client management for Syndicate Marketing — websites, marketing, and everything in between.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0f1a",
+  "theme_color": "#0b0f1a",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

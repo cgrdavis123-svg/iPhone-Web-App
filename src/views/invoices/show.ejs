@@ -1,0 +1,103 @@
+<a href="/clients/<%= clientRecord.id %>" class="back-link">‹ Back to <%= clientRecord.business_name %></a>
+
+<div class="page-header">
+  <div>
+    <h1>#<%= invoice.invoice_number %></h1>
+    <div class="list-row__meta"><%= clientRecord.business_name %></div>
+  </div>
+  <span class="badge badge--<%= invoice.status %>"><%= statusLabel(invoice.status) %></span>
+</div>
+
+<div class="card print-invoice">
+  <div class="row row--wrap">
+    <div>
+      <div class="list-row__meta">Issued</div>
+      <div><%= shortDate(invoice.issue_date) %></div>
+    </div>
+    <% if (invoice.due_date) { %>
+    <div>
+      <div class="list-row__meta">Due</div>
+      <div><%= shortDate(invoice.due_date) %></div>
+    </div>
+    <% } %>
+  </div>
+
+  <table class="invoice-items">
+    <thead>
+      <tr><th>Description</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Total</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% items.forEach(function(it) { %>
+        <tr>
+          <td><%= it.description %></td>
+          <td class="num"><%= it.quantity %></td>
+          <td class="num"><%= money(it.unit_price) %></td>
+          <td class="num"><%= money(it.quantity * it.unit_price) %></td>
+          <td class="no-print">
+            <form method="POST" action="/invoice-items/<%= it.id %>/delete" data-confirm="Remove this line item?">
+              <button type="submit" class="link-btn" style="padding:0;">✕</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+      <% if (!items.length) { %>
+        <tr><td colspan="5" style="color:var(--text-faint);">No line items yet.</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+
+  <div class="invoice-total">
+    <span>Total</span>
+    <span><%= money(total) %></span>
+  </div>
+
+  <% if (invoice.notes) { %>
+    <hr class="divider">
+    <div style="font-size:13px; color:var(--text-dim); white-space:pre-wrap;"><%= invoice.notes %></div>
+  <% } %>
+</div>
+
+<div class="no-print">
+  <details class="card">
+    <summary style="cursor:pointer; font-weight:600;">+ Add line item</summary>
+    <form method="POST" action="/invoices/<%= invoice.id %>/items" class="field-row" style="margin-top:12px;">
+      <label class="field" style="flex:3;">
+        <span>Description</span>
+        <input type="text" name="description" required>
+      </label>
+      <label class="field" style="flex:1;">
+        <span>Qty</span>
+        <input type="number" name="quantity" value="1" min="0" step="0.5">
+      </label>
+      <label class="field" style="flex:1;">
+        <span>Price</span>
+        <input type="number" name="unit_price" min="0" step="0.01">
+      </label>
+      <button type="submit" class="btn btn--primary btn--sm" style="align-self:flex-end;">Add</button>
+    </form>
+  </details>
+
+  <div class="section-title"><h2>Status</h2></div>
+  <form method="POST" action="/invoices/<%= invoice.id %>/status" class="chip-row">
+    <% STATUSES.forEach(function(s) { %>
+      <button type="submit" name="status" value="<%= s %>" class="chip <%= invoice.status === s ? 'is-active' : '' %>" style="border:none;"><%= statusLabel(s) %></button>
+    <% }) %>
+  </form>
+
+  <div class="form-actions">
+    <button type="button" class="btn" onclick="window.print()">🖨️ Print / Share</button>
+  </div>
+
+  <div class="section-title"><h2>Danger Zone</h2></div>
+  <form method="POST" action="/invoices/<%= invoice.id %>/delete" data-confirm="Delete this invoice?">
+    <button type="submit" class="btn btn--danger btn--block">Delete Invoice</button>
+  </form>
+</div>
+
+<style>
+  @media print {
+    .topbar, .tabbar, .no-print, .back-link { display: none !important; }
+    body, .page { background: #fff; color: #000; }
+    .card { border-color: #ccc; }
+  }
+</style>
